@@ -1,13 +1,41 @@
-import './App.css'
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Missing this!
+import { Routes, Route, BrowserRouter } from 'react-router-dom'; // Added BrowserRouter
+import Home from './components/Home'
+import Onboarding from './components/Onboarding';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import BusinessJourney from './pages/BusinessJourney';
+import IdeaStage from './pages/IdeaStage';
+import Industry from './pages/Industry';
+import EarlyStage from './pages/EarlyStage';
+import GrowthStage from './pages/GrowthStage';
+import FinishSetup from './pages/FinishSetup';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
+// 1. Define the App component first
 function App() {
   return (
-    <div className="w-full h-screen bg-black text-red-500 flex items-center justify-center">
-      <h1 className='text-4xl md:text-6xl font-bold uppercase hover:text-blue-500 transition-all hover:underline '>
-        Landing page goes here
-      </h1>
+    <div className="min-h-screen bg-white font-sans text-slate-900">
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/IdeaStage" element={<IdeaStage />} />
+          <Route path="/Onboarding" element={<Onboarding />} />
+          <Route path="/BusinessJourney" element={<BusinessJourney />} />
+          <Route path="/Industry" element={<Industry />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/EarlyStage" element={<EarlyStage />} />
+          <Route path="/GrowthStage" element={<GrowthStage />} />
+          <Route path="/FinishSetup" element={<FinishSetup />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </main>
     </div>
-  )
+  );
 }
 
-export default App
+// 2. Render it to the DOM
+
+
+export default App;
