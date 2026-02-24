@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // Missing this!
-import { Routes, Route, BrowserRouter } from 'react-router-dom'; // Added BrowserRouter
+import ReactDOM from 'react-dom/client';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import Home from './components/Home'
 import Onboarding from './components/Onboarding';
 import Login from './pages/Login';
@@ -38,9 +38,9 @@ function App() {
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/progress" element={<ProgressDashboard />} />
           <Route path="/chat" element={<AIMentor />} />
-          <Route path="/tools" element={<Tools />}/>
-          <Route path="/business-plan" element={<BusinessPlan />}/>
-          <Route path="/business-info" element={<BusinessInfo />}/>
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/business-plan" element={<BusinessPlan />} />
+          <Route path="/business-info" element={<BusinessInfo />} />
         </Routes>
       </main>
     </div>

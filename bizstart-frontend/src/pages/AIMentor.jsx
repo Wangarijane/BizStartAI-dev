@@ -1,58 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bell, Mic, Send, Home, Briefcase, MessageSquare, User } from "lucide-react"; // Added icons
+import { Bell, Mic, Send, Home, Briefcase, MessageSquare, User } from "lucide-react";
 import Logo from "../assets/bizstart-ai.png";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { useNavigate } from "react-router-dom"; // 1. Import the hook
+import api from "../api";
+import BottomNav from "../components/BottomNav";
 
-  const PRIMARY = "#6E62B1";
+const PRIMARY = "#6E62B1";
 
-const BottomNav = () => {
-  const navigate = useNavigate(); // 2. Initialize the navigate function
-
-
-  return (
-    <div className="fixed bottom-0 left-0 w-full md:hidden border-t bg-white flex justify-around items-center text-[10px] py-2 shadow-md z-50">
-      
-      {/* Home Button */}
-      <div 
-        onClick={() => navigate("/dashboard")} 
-        className="flex flex-col items-center gap-1 cursor-pointer text-gray-400"
-      >
-        <Home size={18} />
-        <span>Home</span>
-      </div>
-
-      {/* Tools Button */}
-      <div 
-        onClick={() => navigate("/tools")} 
-        className="flex flex-col items-center gap-1 cursor-pointer text-gray-400"
-      >
-        <Briefcase size={18} />
-        <span>Tools</span>
-      </div>
-
-      {/* AI Mentor Button (Active State) */}
-      <div 
-        onClick={() => navigate("/chat")} 
-        className="flex flex-col items-center gap-1 cursor-pointer" 
-        style={{ color: PRIMARY, fontWeight: 600 }}
-      >
-        <MessageSquare size={18} />
-        <span>AI Mentor</span>
-      </div>
-
-      {/* Profile Button */}
-      <div 
-        onClick={() => navigate("/profile")} 
-        className="flex flex-col items-center gap-1 cursor-pointer text-gray-400"
-      >
-        <User size={18} />
-        <span>Profile</span>
-      </div>
-
-    </div>
-  );
-};
 const ChatHeader = () => (
   <div className="flex items-center justify-between sticky top-0 bg-white z-10 py-3 px-4 shadow-md">
     <img src={Logo} alt="BizStart AI" className="h-10 object-contain" />
@@ -121,51 +74,80 @@ const ChatInput = ({ onSend }) => {
 const AIMentor = () => {
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [conversationId, setConversationId] = useState(null); // Backend conversation tracking
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    const savedData = localStorage.getItem('userAccount');
-    const userData = savedData ? JSON.parse(savedData) : { name: "Sandra" };
-    setMessages([{ sender: "ai", text: `Hello ${userData.name}! I'm your AI mentor. Ready to work?` }]);
+    const initializeChat = async () => {
+      try {
+        const savedData = JSON.parse(localStorage.getItem('userAccount') || '{"name": "Sandra"}');
+
+        // Fetch existing conversations
+        const convRes = await api.get('/conversations');
+        let currentConvId = null;
+
+        if (convRes.data && convRes.data.length > 0) {
+          // Pick the first/latest conversation
+          currentConvId = convRes.data[0].id;
+        } else {
+          // Create new conversation if none exist
+          const createRes = await api.post('/conversations', { title: "Business Idea Discussion" });
+          currentConvId = createRes.data?.data?.id || createRes.data?.id;
+        }
+
+        setConversationId(currentConvId);
+
+        // Fetch past messages
+        if (currentConvId) {
+          const msgRes = await api.get(`/messages/${currentConvId}?limit=50`);
+          if (msgRes.data && msgRes.data.length > 0) {
+            const fetchedMessages = msgRes.data.map(m => ({
+              sender: m.role || (m.isAi ? 'ai' : 'user'), // Map backend fields to sender 'user' or 'ai'
+              text: m.content || m.text
+            }));
+            setMessages(fetchedMessages);
+          } else {
+            setMessages([{ sender: "ai", text: `Hello ${savedData.name}! I'm your AI mentor. Ready to work?` }]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to initialize chat:", err);
+        const savedData = JSON.parse(localStorage.getItem('userAccount') || '{"name": "Sandra"}');
+        setMessages([{ sender: "ai", text: `Hello ${savedData.name}! I'm your AI mentor. Ready to work?` }]);
+      }
+    };
+
+    initializeChat();
   }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-const handleSend = async (msg) => {
-  if (!msg.trim() || isTyping) return;
-  
-  const savedData = localStorage.getItem('userAccount');
-  const businessProfile = savedData ? JSON.parse(savedData) : null;
+  const handleSend = async (msg) => {
+    if (!msg.trim() || isTyping) return;
 
-  setMessages(prev => [...prev, { sender: "user", text: msg }]);
-  setIsTyping(true);
+    setMessages(prev => [...prev, { sender: "user", text: msg }]);
+    setIsTyping(true);
 
-  try {
-   const genAI = new GoogleGenerativeAI("AIzaSyCvDPGH154PJk1pakpHV_PVgq9erhld2Is");
-               const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    try {
+      // Direct integration with backend API
+      const res = await api.post('/messages', {
+        conversation_id: conversationId,
+        content: msg
+      });
 
-    const systemPrompt = businessProfile 
-      ? `You are Paddy, a business mentor. You are talking to ${businessProfile.name}. 
-         Their business is "${businessProfile.businessName}" in the ${businessProfile.suggestedIndustry} industry. 
-         They are at the ${businessProfile.stage} stage. 
-         NEVER ask them what their business is; you already know this. Provide specific advice based on this data.
-         Keep your responses organized with bullet points and clear steps.`
-      : "You are a business mentor named Paddy.";
+      const aiResponse = res.data?.data?.aiMessage;
+      const responseText = aiResponse?.text || aiResponse?.content || res.data?.text || "I'm sorry, I encountered an issue processing that.";
 
-    const prompt = `${systemPrompt}\n\nUser Message: ${msg}`;
-
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    
-    setMessages(prev => [...prev, { sender: "ai", text }]);
-  } catch (e) {
-    console.error(e);
-  } finally {
-    setIsTyping(false);
-  }
-};
+      setMessages(prev => [...prev, { sender: "ai", text: responseText }]);
+    } catch (e) {
+      console.error("Error sending message to backend:", e);
+      setMessages(prev => [...prev, { sender: "ai", text: "Oops, something went wrong connecting to my brain! Ensure your backend is running." }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
 
   return (
     <div className="flex flex-col w-full h-screen bg-white overflow-hidden">
@@ -176,7 +158,7 @@ const handleSend = async (msg) => {
         {isTyping && <div className="text-xs animate-pulse" style={{ color: PRIMARY }}>Paddy is thinking...</div>}
         <div ref={scrollRef} />
       </div>
-      
+
       <ChatInput onSend={handleSend} />
       <BottomNav />
     </div>

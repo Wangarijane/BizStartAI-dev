@@ -1,17 +1,9 @@
 import React from "react";
 import { ArrowLeft, Sparkles, FileText, BookOpen, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BottomNav from "../components/BottomNav";
 
 const PRIMARY = "#6E62B1";
-
-const BottomNav = () => (
-  <div className="fixed bottom-0 left-0 w-full md:hidden border-t bg-white flex justify-around text-sm px-4 py-3 shadow-md z-10">
-    <div>Home</div>
-    <div style={{ color: PRIMARY, fontWeight: 600 }}>Tools</div>
-    <div>AI Mentor</div>
-    <div>Profile</div>
-  </div>
-);
 
 const Header = () => (
   <div className="sticky top-0 bg-white z-20 px-4 py-3 shadow-sm flex items-center justify-center">
@@ -23,24 +15,27 @@ const Header = () => (
   </div>
 );
 
-const ToolCard = ({ icon: Icon, title, description, onClick }) => (
-  <div
-    onClick={onClick}
-    className="bg-gray-50 rounded-2xl p-4 shadow-sm flex gap-3 items-start cursor-pointer hover:shadow-md transition"
-  >
+const ToolCard = ({ icon, title, description, onClick }) => {
+  const IconComponent = icon;
+  return (
     <div
-      className="p-2 rounded-lg"
-      style={{ backgroundColor: "#F3F2FA", color: PRIMARY }}
+      onClick={onClick}
+      className="bg-gray-50 rounded-2xl p-4 shadow-sm flex gap-3 items-start cursor-pointer hover:shadow-md transition"
     >
-      <Icon size={20} />
-    </div>
+      <div
+        className="p-2 rounded-lg"
+        style={{ backgroundColor: "#F3F2FA", color: PRIMARY }}
+      >
+        {IconComponent && <IconComponent size={20} />}
+      </div>
 
-    <div>
-      <p className="font-semibold text-gray-800">{title}</p>
-      <p className="text-sm text-gray-500 mt-1">{description}</p>
+      <div>
+        <p className="font-semibold text-gray-800">{title}</p>
+        <p className="text-sm text-gray-500 mt-1">{description}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const Tools = () => {
   const navigate = useNavigate();

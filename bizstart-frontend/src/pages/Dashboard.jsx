@@ -1,90 +1,88 @@
 import React, { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Home, Briefcase, MessageSquare, User } from "lucide-react";
 import Logo from "../assets/bizstart-ai.png";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useNavigate } from "react-router-dom"; // Added for navigation
-import { Home, Briefcase, MessageSquare, User } from "lucide-react";
+import api from "../api";
+import BottomNav from "../components/BottomNav";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState("Guest");
-  const [recommendedCourses, setRecommendedCourses] = useState([]);
-  const [isAiLoading, setIsAiLoading] = useState(true);
+  const [userName] = useState(() => {
+    try {
+      const saved = localStorage.getItem('userAccount');
+      return saved ? (JSON.parse(saved).name || "Business Owner") : "Guest";
+    } catch {
+      return "Guest";
+    }
+  });
+  const [recommendedCourses, setRecommendedCourses] = useState(() => {
+    try {
+      const cache = localStorage.getItem('ai_lessons_cache');
+      return cache ? JSON.parse(cache) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [isAiLoading, setIsAiLoading] = useState(() => {
+    try {
+      const cache = localStorage.getItem('ai_lessons_cache');
+      return !cache; // If there's no cache, we are loading
+    } catch {
+      return true;
+    }
+  });
   const PRIMARY = "#6E62B1"; // ADD THIS LINE HERE
 
-useEffect(() => {
-  const savedData = localStorage.getItem('userAccount');
-  if (savedData) {
-    const parsedData = JSON.parse(savedData);
-    setUserName(parsedData.name || "Business Owner");
-    
-    // Check if we already have data
-    const cache = localStorage.getItem('ai_lessons_cache');
-    if (cache) {
-      setRecommendedCourses(JSON.parse(cache));
-      setIsAiLoading(false);
-    } else {
-      // ONLY call if cache is empty
-      generateAIRecommendations(parsedData);
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchRecommendations(userData) {
+      try {
+        const res = await api.post('/recommendations', {
+          businessName: userData.businessName,
+          industry: userData.suggestedIndustry,
+          stage: userData.stage
+        });
+
+        if (!mounted) return;
+
+        const aiData = res.data?.data || res.data || [];
+        const formattedData = aiData.map(item => ({
+          ...item,
+          level: userData.stage === 'growth' ? 'Advanced' : 'Beginner'
+        }));
+
+        localStorage.setItem('ai_lessons_cache', JSON.stringify(formattedData));
+        setRecommendedCourses(formattedData);
+        setIsAiLoading(false);
+      } catch (error) {
+        console.error("AI Fetch Error:", error);
+        if (!mounted) return;
+
+        const fallback = [
+          { title: "Market Entry", description: "Learn how to find customers.", lessons: 5, duration: 25, level: "Beginner" },
+          { title: "Business Strategy", description: "Build a plan for growth.", lessons: 4, duration: 20, level: "Beginner" }
+        ];
+
+        localStorage.setItem('ai_lessons_cache', JSON.stringify(fallback));
+        setRecommendedCourses(fallback);
+        setIsAiLoading(false);
+      }
     }
-  }
-}, []);
 
-  const generateAIRecommendations = async (userData) => {
-    try {
-           const genAI = new GoogleGenerativeAI("AIzaSyCvDPGH154PJk1pakpHV_PVgq9erhld2Is");
-           const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const savedData = localStorage.getItem('userAccount');
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      const cache = localStorage.getItem('ai_lessons_cache');
+      if (!cache) {
+        fetchRecommendations(parsedData);
+      }
+    }
 
-      const prompt = `
-        Business: ${userData.businessName}
-        Industry: ${userData.suggestedIndustry}
-        Stage: ${userData.stage}
-
-        Recommend 2 unique business lessons. 
-        CRITICAL: Each description must be exactly 5 to 7 words long. 
-        
-        For each lesson, also provide:
-        1. A realistic number of lessons (between 3 and 8).
-        2. A total duration in minutes (between 15 and 45).
-
-        Return ONLY a JSON array in this format:
-        [
-          {
-            "title": "Lesson Name", 
-            "description": "Exactly six words long description",
-            "lessons": 5,
-            "duration": 30
-          }
-        ]
-      `;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      const cleanJson = text.replace(/```json|```/g, "").trim();
-      const aiData = JSON.parse(cleanJson);
-
-      const formattedData = aiData.map(item => ({
-        ...item,
-        level: userData.stage === 'growth' ? 'Advanced' : 'Beginner'
-      }));
-
-      // 2. SAVE TO CACHE: Store the result so refreshing doesn't use quota
-      localStorage.setItem('ai_lessons_cache', JSON.stringify(formattedData));
-      setRecommendedCourses(formattedData);
-    } catch (error) {
-  console.error("AI Fetch Error:", error);
-  
-  const fallback = [
-    { title: "Market Entry", description: "Learn how to find customers.", lessons: 5, duration: 25, level: "Beginner" },
-    { title: "Business Strategy", description: "Build a plan for growth.", lessons: 4, duration: 20, level: "Beginner" }
-  ];
-
-  // ADD THIS: Save the fallback so the app stops re-triggering the 429 error
-  localStorage.setItem('ai_lessons_cache', JSON.stringify(fallback));
-  setRecommendedCourses(fallback);
-}
-  };
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const exploreOptions = [
     { icon: "🤖", title: "Refine Your Idea", description: "Chat with AI to strengthen your business concept" },
@@ -111,7 +109,7 @@ useEffect(() => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {isAiLoading ? (
               <div className="col-span-full py-10 flex flex-col items-center justify-center text-gray-400">
-                <div className="w-6 h-6 border-2 border-[#6E62B1] border-t-transparent rounded-full animate-spin mb-2" />
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
                 <p className="text-xs">Paddy is personalizing your lessons...</p>
               </div>
             ) : (
@@ -128,8 +126,8 @@ useEffect(() => {
                       <span>⭐ {course.level}</span>
                     </div>
                   </div>
-                  <button 
-                    style={{ backgroundColor: "#6E62B1" }} 
+                  <button
+                    style={{ backgroundColor: "#6E62B1" }}
                     className="text-white px-4 py-2 rounded-lg text-sm mt-4 md:mt-auto self-start cursor-pointer transition-all active:scale-95"
                   >
                     Start
@@ -159,47 +157,10 @@ useEffect(() => {
             ))}
           </div>
         </div>
-          {/* Fixed Bottom Navigation */}
-          <div className="fixed bottom-0 left-0 w-full md:hidden border-t bg-white flex justify-around items-center text-[10px] py-2 shadow-lg z-50">
-            {/* Home - Active State */}
-            <div 
-              className="flex flex-col items-center gap-1 cursor-pointer" 
-              style={{ color: PRIMARY }}
-              onClick={() => navigate('/dashboard')}
-            >
-              <Home size={20} />
-              <span className="font-medium">Home</span>
-            </div>
-
-            {/* Tools */}
-            <div 
-              className="flex flex-col items-center gap-1 cursor-pointer text-gray-500 hover:text-[#6E62B1] transition-colors"
-              onClick={() => navigate('/tools')}
-            >
-              <Briefcase size={20} />
-              <span>Tools</span>
-            </div>
-
-            {/* AI Mentor */}
-            <div 
-              className="flex flex-col items-center gap-1 cursor-pointer text-gray-500 hover:text-[#6E62B1] transition-colors"
-              onClick={() => navigate('/chat')} // Matches your AIMentor route
-            >
-              <MessageSquare size={20} />
-              <span>AI Mentor</span>
-            </div>
-
-            {/* Profile */}
-            <div 
-              className="flex flex-col items-center gap-1 cursor-pointer text-gray-500 hover:text-[#6E62B1] transition-colors"
-              onClick={() => navigate('/profile')}
-            >
-              <User size={20} />
-              <span>Profile</span>
-            </div>
-          </div>
+        {/* Fixed Bottom Navigation */}
+        <BottomNav />
       </div>
-    </div>
+    </div >
   );
 };
 

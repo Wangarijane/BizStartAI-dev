@@ -1,32 +1,9 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import BottomNav from "../components/BottomNav";
 
 const PRIMARY = "#6E62B1";
-
-const BottomNav = () => (
-  <div className="fixed bottom-0 left-0 w-full md:hidden border-t bg-white flex justify-around py-3 text-xs z-20">
-    <div className="flex flex-col items-center text-gray-400">
-      <span>🏠</span>
-      Home
-    </div>
-
-    <div className="flex flex-col items-center text-[#6E62B1] font-medium">
-      <span>🧰</span>
-      Tools
-    </div>
-
-    <div className="flex flex-col items-center text-gray-400">
-      <span>🤖</span>
-      AI Mentor
-    </div>
-
-    <div className="flex flex-col items-center text-gray-400">
-      <span>👤</span>
-      Profile
-    </div>
-  </div>
-);
 
 export default function BusinessInfo() {
   const navigate = useNavigate();
@@ -37,7 +14,7 @@ export default function BusinessInfo() {
       <div className="w-full max-w-md md:max-w-5xl bg-white md:shadow-xl md:rounded-2xl flex flex-col h-screen">
 
         {/* Header */}
-        <div className="sticky top-0 z-20 bg-white px-6 py-4 border-b flex items-center justify-center relative">
+        <div className="sticky top-0 z-20 bg-white px-6 py-4 border-b flex items-center justify-center">
           <button
             onClick={() => navigate(-1)}
             className="absolute left-6 p-2 rounded-xl shadow-sm bg-gray-100"
@@ -63,9 +40,8 @@ export default function BusinessInfo() {
                   <div key={index} className="flex flex-col items-center flex-1">
 
                     <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium ${
-                        active ? "text-white" : "text-gray-500 bg-gray-200"
-                      }`}
+                      className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium ${active ? "text-white" : "text-gray-500 bg-gray-200"
+                        }`}
                       style={{
                         backgroundColor: active ? PRIMARY : "#E5E5E5",
                       }}
@@ -149,12 +125,12 @@ export default function BusinessInfo() {
 
           </div>
           <button
-              onClick={() => navigate("/market")}
-              className="w-full mt-8 py-4 rounded-xl text-white font-semibold shadow-md"
-              style={{ backgroundColor: PRIMARY }}
-            >
-              Next
-            </button>
+            onClick={() => navigate("/market")}
+            className="w-full mt-8 py-4 rounded-xl text-white font-semibold shadow-md"
+            style={{ backgroundColor: PRIMARY }}
+          >
+            Next
+          </button>
         </div>
 
         {/* Bottom Nav */}

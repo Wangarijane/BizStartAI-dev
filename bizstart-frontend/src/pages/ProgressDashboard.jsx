@@ -1,6 +1,7 @@
 import React from "react";
 import { Bell } from "lucide-react";
 import Logo from "../assets/bizstart-ai.png";
+import BottomNav from "../components/BottomNav";
 
 // Mock data
 const userProgress = {
@@ -43,15 +44,6 @@ const Header = () => (
   <div className="flex items-center justify-between sticky top-0 bg-white z-10 py-3 px-4 shadow-md">
     <img src={Logo} alt="BizStart AI" className="h-10 object-contain" />
     <Bell stroke="black" size={22} />
-  </div>
-);
-
-const BottomNav = () => (
-  <div className="fixed bottom-0 left-0 w-full md:hidden border-t bg-white flex justify-around text-sm text-gray-500 px-4 py-3 shadow-md z-10">
-    <div style={{ color: "#6E62B1" }}>Home</div>
-    <div>Tools</div>
-    <div>AI Mentor</div>
-    <div>Profile</div>
   </div>
 );
 
