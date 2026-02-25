@@ -42,7 +42,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 
 
-// temp fix: frontend is calling /api/recommendations directly instead of /api/ai/recommendations
+// fix: frontend is calling /api/recommendations directly instead of /api/ai/recommendations
 // intercepting it here so they don't have to change their code
 app.post('/api/recommendations', async (req, res, next) => {
   try {
