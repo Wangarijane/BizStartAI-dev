@@ -14,8 +14,6 @@ const Stepper = ({ activeStep }) => {
       <div className="absolute top-[52px] left-12 right-12 h-[1px] bg-gray-300 -z-0"></div>
 
       {steps.map((step) => {
-        // --- THE MAGIC HAPPENS HERE ---
-        // Instead of reading a fixed status, we calculate it using the activeStep prop
         const isComplete = step.id < activeStep;
         const isActive = step.id === activeStep;
 

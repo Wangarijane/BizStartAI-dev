@@ -21,7 +21,6 @@ const Strategy = () => {
         <h2 className="text-2xl font-bold text-gray-900">Strategy</h2>
       </div>
 
-      {/* Now we pass "3" to tell the stepper we are on step 3 */}
       <Stepper activeStep={3} />
 
       <InfoCard currentStep={3} totalSteps={4} title="How will you grow?" />
