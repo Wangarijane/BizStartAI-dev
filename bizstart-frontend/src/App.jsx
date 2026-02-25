@@ -1,25 +1,25 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client'; // Missing this!
-import { Routes, Route, BrowserRouter } from 'react-router-dom'; // Added BrowserRouter
-import Home from './components/Home'
-import Onboarding from './components/Onboarding';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import BusinessJourney from './pages/BusinessJourney';
-import IdeaStage from './pages/IdeaStage';
-import Industry from './pages/Industry';
-import EarlyStage from './pages/EarlyStage';
-import GrowthStage from './pages/GrowthStage';
-import FinishSetup from './pages/FinishSetup';
-import Dashboard from './pages/Dashboard';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Home from "./components/Home";
+import Onboarding from "./components/Onboarding";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import BusinessJourney from "./pages/BusinessJourney";
+import IdeaStage from "./pages/IdeaStage";
+import Industry from "./pages/Industry";
+import EarlyStage from "./pages/EarlyStage";
+import GrowthStage from "./pages/GrowthStage";
+import FinishSetup from "./pages/FinishSetup";
+import Dashboard from "./pages/Dashboard";
 import ProgressDashboard from "./pages/ProgressDashboard";
 import AIMentor from "./pages/AIMentor";
-import Tools from './pages/Tools';
-import BusinessPlan from './pages/BusinessPlan';
+import Tools from "./pages/Tools";
+import BusinessPlan from "./pages/BusinessPlan";
 import BusinessInfo from "./pages/BusinessInfo";
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import MarketInfo from './pages/MarketInfo'
-import Strategy from './pages/Strategy';
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import MarketInfo from "./pages/MarketInfo";
+import Strategy from "./pages/Strategy";
 
 // 1. Define the App component first
 function App() {
@@ -40,11 +40,16 @@ function App() {
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/progress" element={<ProgressDashboard />} />
           <Route path="/chat" element={<AIMentor />} />
-          <Route path="/tools" element={<Tools />}/>
-          <Route path="/business-plan" element={<BusinessPlan />}/>
-          <Route path="/business-info" element={<BusinessInfo />}/>
-          <Route path="/market-info" element={<MarketInfo />}/>
+
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/business-plan" element={<BusinessPlan />} />
+          <Route path="/business-info" element={<BusinessInfo />} />
+          <Route path="/market-info" element={<MarketInfo />} />
           <Route path="/strategy" element={<Strategy />} />
+
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/business-plan" element={<BusinessPlan />} />
+          <Route path="/business-info" element={<BusinessInfo />} />
         </Routes>
       </main>
     </div>
@@ -52,6 +57,5 @@ function App() {
 }
 
 // 2. Render it to the DOM
-
 
 export default App;
