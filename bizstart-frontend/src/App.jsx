@@ -17,9 +17,11 @@ import AIMentor from "./pages/AIMentor";
 import Tools from "./pages/Tools";
 import BusinessPlan from "./pages/BusinessPlan";
 import BusinessInfo from "./pages/BusinessInfo";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import MarketInfo from "./pages/MarketInfo";
-import Strategy from "./pages/Strategy";
+import Financials from "./pages/Financials";
+import GeneratingPlan from "./pages/GeneratingPlan";
+import YourPlan from "./pages/YourPlan";
+import EditSection from "./pages/EditSection";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // 1. Define the App component first
 function App() {
@@ -50,6 +52,10 @@ function App() {
           <Route path="/tools" element={<Tools />} />
           <Route path="/business-plan" element={<BusinessPlan />} />
           <Route path="/business-info" element={<BusinessInfo />} />
+          <Route path="/financials" element={<Financials />} />
+          <Route path="/generating" element={<GeneratingPlan />} />
+          <Route path="/your-plan" element={<YourPlan />} />
+          <Route path="/edit-section" element={<EditSection />} />
         </Routes>
       </main>
 iu
