@@ -5,6 +5,8 @@ require("./models/user.model");
 require("./models/conversation.model");
 require("./models/message.model");
 require("./models/businessProfile.model");
+require("./models/course.model");
+require("./models/userProgress.model");
 
 const PORT = process.env.PORT || 5000;
 

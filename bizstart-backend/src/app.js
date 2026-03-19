@@ -12,6 +12,7 @@ const conversationRoutes = require('./routes/conversation.routes');
 const messageRoutes = require('./routes/message.routes');
 const userRoutes = require('./routes/user.routes');
 const aiRoutes = require('./routes/ai.routes');
+const progressRoutes = require('./routes/progress.routes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/progress', progressRoutes);
 
 
 // temp fix: frontend is calling /api/recommendations directly instead of /api/ai/recommendations
